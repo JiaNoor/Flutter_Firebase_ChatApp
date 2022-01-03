@@ -11,11 +11,9 @@ class Post extends StatefulWidget {
 }
 
 class _PostState extends State<Post> {
-  late var imagePath;
+  var imagePath;
   TextEditingController titleController = TextEditingController();
-
   TextEditingController descriptionController = TextEditingController();
-
   CollectionReference postStream =
       FirebaseFirestore.instance.collection('posts');
 
@@ -23,8 +21,8 @@ class _PostState extends State<Post> {
   Widget build(BuildContext context) {
     Future<void> selectImage() async {
       final ImagePicker _picker = ImagePicker();
-      //final image = await _picker.pickImage(source: ImageSource.gallery);
-      final image = await _picker.pickImage(source: ImageSource.camera);
+      final image = await _picker.pickImage(source: ImageSource.gallery);
+      // final photo = await _picker.pickImage(source: ImageSource.camera);
       // final vidgallery = await _picker.pickVideo(source: ImageSource.gallery);
       // final video = await _picker.pickVideo(source: ImageSource.camera);
       // final List<dynamic>? images = await _picker.pickMultiImage();
@@ -43,7 +41,7 @@ class _PostState extends State<Post> {
 
         String imageName = path.basename(imagePath);
         firebase_storage.Reference ref =
-            firebase_storage.FirebaseStorage.instance.ref('/${imageName}');
+            firebase_storage.FirebaseStorage.instance.ref('/$imageName');
 
         File file = File(imagePath);
         await ref.putFile(file);
@@ -52,6 +50,8 @@ class _PostState extends State<Post> {
         FirebaseFirestore db = FirebaseFirestore.instance;
         await db.collection("posts").add(
             {"title": title, "description": description, "url": downloadURL});
+        // titleController.clear();
+        // descriptionController.clear();
       } catch (e) {
         print(e);
       }
@@ -109,6 +109,8 @@ class _PostState extends State<Post> {
                   children:
                       snapshot.data!.docs.map((DocumentSnapshot document) {
                     Map data = document.data()! as Map;
+                    String id = document.id;
+                    data["id"] = id;
                     return Posts(data);
                   }).toList(),
                 );
@@ -122,18 +124,44 @@ class _PostState extends State<Post> {
 }
 
 Widget Posts(Map data) {
+  Future<void> deletePost() async {
+    try {
+      FirebaseFirestore db = FirebaseFirestore.instance;
+      db.collection("posts").doc(data['id']).delete();
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  ;
+
+  print(data['id']);
+
   return SizedBox(
     height: 250,
     child: Center(
       child: Container(
-        height: 170,
+        height: 270,
         width: 200,
         decoration: BoxDecoration(
           border: Border.all(color: Colors.black, width: 1),
         ),
         padding: EdgeInsets.all(10),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                IconButton(icon: Icon(Icons.edit), onPressed: () {}),
+                IconButton(
+                    icon: Icon(Icons.delete),
+                    onPressed: () {
+                      deletePost();
+                    })
+              ],
+            ),
             Image.network(
               data["url"],
               height: 100,

@@ -1,4 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_proj/chat-register.dart';
+import 'package:firebase_proj/chats.dart';
 import 'package:firebase_proj/login.dart';
 import 'package:firebase_proj/posts.dart';
 import 'package:firebase_proj/signup.dart';
@@ -23,7 +25,7 @@ class MyApp extends StatelessWidget {
             return Container();
           }
           if (snapshot.connectionState == ConnectionState.done) {
-            return MaterialApp(home: Post(), routes: {
+            return MaterialApp(home: HomeScreen(), routes: {
               "/login": (context) => Login(),
               "/register": (context) => Register(),
               "/posts": (context) => Post(),
