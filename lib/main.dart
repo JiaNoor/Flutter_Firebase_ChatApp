@@ -1,9 +1,12 @@
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_proj/chat-register.dart';
-import 'package:firebase_proj/chats.dart';
-import 'package:firebase_proj/login.dart';
-import 'package:firebase_proj/posts.dart';
-import 'package:firebase_proj/signup.dart';
+import 'package:firebase_proj/new/authenticate.dart';
+import 'package:firebase_proj/new/login.dart';
+// import 'package:firebase_proj/chat-register.dart';
+// import 'package:firebase_proj/chatroom.dart';
+// import 'package:firebase_proj/chats.dart';
+// import 'package:firebase_proj/login.dart';
+// import 'package:firebase_proj/posts.dart';
+// import 'package:firebase_proj/signup.dart';
 import 'package:flutter/material.dart';
 
 Future<void> main() async {
@@ -25,11 +28,9 @@ class MyApp extends StatelessWidget {
             return Container();
           }
           if (snapshot.connectionState == ConnectionState.done) {
-            return MaterialApp(home: HomeScreen(), routes: {
-              "/login": (context) => Login(),
-              "/register": (context) => Register(),
-              "/posts": (context) => Post(),
-            });
+            debugShowCheckedModeBanner:
+            false;
+            return MaterialApp(home: Authenticate());
           }
           return Container();
         });

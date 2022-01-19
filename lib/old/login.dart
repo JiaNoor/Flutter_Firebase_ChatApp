@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_proj/controllers/authentications.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -15,12 +16,12 @@ class _LoginState extends State<Login> {
   Widget build(BuildContext context) {
     final TextEditingController emailController = TextEditingController();
     final TextEditingController passwordController = TextEditingController();
-
+    final String email = emailController.text;
+    final String password = passwordController.text;
     Future<void> login() async {
       FirebaseAuth auth = FirebaseAuth.instance;
       FirebaseFirestore db = FirebaseFirestore.instance;
-      final String email = emailController.text;
-      final String password = passwordController.text;
+
       try {
         final UserCredential user = await auth.signInWithEmailAndPassword(
             email: email, password: password);
@@ -37,6 +38,14 @@ class _LoginState extends State<Login> {
             builder: (BuildContext context) {
               return AlertDialog(content: Text("$e"));
             });
+      }
+    }
+
+    void resetPassword(String email) async {
+      try {
+        return await auth.sendPasswordResetEmail(email: email);
+      } catch (e) {
+        print(e.toString());
       }
     }
 
@@ -90,6 +99,18 @@ class _LoginState extends State<Login> {
                   ),
                 )),
           ),
+          TextButton(
+              onPressed: () {
+                resetPassword(email);
+              },
+              child: Text(
+                "Forgot Password",
+                style: TextStyle(
+                  color: Colors.teal,
+                  fontSize: 15,
+                  decoration: TextDecoration.underline,
+                ),
+              )),
           TextButton(
               onPressed: () {
                 Navigator.of(context).pushNamed("/register");

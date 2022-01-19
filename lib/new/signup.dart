@@ -1,5 +1,6 @@
 import 'dart:io';
 //import 'dart:js';
+import 'package:firebase_proj/new/login.dart';
 import 'package:path/path.dart' as paths;
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -7,16 +8,16 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 
-import 'login.dart';
+//import 'login.dart';
 
-class RegisterChat extends StatefulWidget {
-  const RegisterChat({Key? key}) : super(key: key);
+class Register extends StatefulWidget {
+  const Register({Key? key}) : super(key: key);
 
   @override
-  _RegisterChatState createState() => _RegisterChatState();
+  _RegisterState createState() => _RegisterState();
 }
 
-class _RegisterChatState extends State<RegisterChat> {
+class _RegisterState extends State<Register> {
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
@@ -61,14 +62,22 @@ class _RegisterChatState extends State<RegisterChat> {
         await ref.putFile(file);
         String downloadURL = await ref.getDownloadURL();
         print("file is uploaded successfully");
+        user.user!.updateDisplayName(username);
 
-        await db
-            .collection("users")
-            .add({"email": email, "username": username, "url": downloadURL});
+        await db.collection("users").doc(auth.currentUser!.uid).set({
+          "email": email,
+          "username": username,
+          "password": password,
+          "url": downloadURL,
+          "status": "unavailable",
+          "uid": auth.currentUser!.uid,
+        });
         setState(() {
           cir = true;
         });
         print("User is registered");
+        Navigator.push(
+            context, MaterialPageRoute(builder: (_) => LoginScreen()));
       } catch (e) {
         print(e);
       }
@@ -90,21 +99,26 @@ class _RegisterChatState extends State<RegisterChat> {
                 color: Colors.teal,
               ));
             }
-            return SingleChildScrollView(
-              child: Container(
-                height: MediaQuery.of(context).size.height,
-                width: MediaQuery.of(context).size.width,
-                decoration: BoxDecoration(
-                    gradient: LinearGradient(colors: [
-                  Color(0xff1d1e26),
-                  Color(0xff252041),
-                ])),
+            return Container(
+              height: double.infinity,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage("assets/images/bg_15.jpg"),
+                  fit: BoxFit.fill,
+                ),
+              ),
+              child: SingleChildScrollView(
                 child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
+                      SizedBox(
+                        height: 80,
+                      ),
                       Text("Sign Up",
                           style: TextStyle(
-                              fontSize: 30,
+                              fontSize: 35,
+                              fontFamily: 'Neonderthaw',
                               fontWeight: FontWeight.bold,
                               color: Colors.white)),
                       SizedBox(
@@ -114,7 +128,23 @@ class _RegisterChatState extends State<RegisterChat> {
                           onPressed: () {
                             selectImage();
                           },
-                          child: Text("Select Your Profile Picture")),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.add_a_photo,
+                                color: Colors.orange,
+                              ),
+                              Text(
+                                " Select Your Profile Picture",
+                                style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.bold,
+                                    decoration: TextDecoration.underline),
+                              ),
+                            ],
+                          )),
                       SizedBox(height: 15),
                       textitem("Email", emailController, false, context),
                       SizedBox(height: 15),
@@ -144,7 +174,8 @@ class _RegisterChatState extends State<RegisterChat> {
                         ),
                         onTap: () {
                           register();
-                          Navigator.of(context).pushNamed("/login");
+
+                          //Navigator.of(context).pushNamed("/login");
                         },
                       ),
                       SizedBox(height: 20),
@@ -184,8 +215,10 @@ class _RegisterChatState extends State<RegisterChat> {
                       ),
                       TextButton(
                         onPressed: () {
-                          Navigator.push(context,
-                              MaterialPageRoute(builder: (context) => Login()));
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => LoginScreen()));
                         },
                         child: Text(
                           "If you already have an Account? Login",
@@ -243,29 +276,3 @@ Widget textitem(String labeltext, TextEditingController controller,
     ),
   );
 }
-
-// Widget regbutton(bool circular, context) {
-//   return InkWell(
-//     child: Container(
-//       height: 50,
-//       width: MediaQuery.of(context).size.width - 200,
-//       decoration: BoxDecoration(
-//           borderRadius: BorderRadius.circular(30), color: Colors.white),
-//       child: Center(
-//         child: circular
-//             ? CircularProgressIndicator()
-//             : Text(
-//                 "Sign Up",
-//                 style: TextStyle(
-//                   color: Colors.black,
-//                   fontSize: 25,
-//                   fontWeight: FontWeight.bold,
-//                 ),
-//               ),
-//       ),
-//     ),
-//     onTap: () {
-//       register();
-//     },
-//   );
-// }
